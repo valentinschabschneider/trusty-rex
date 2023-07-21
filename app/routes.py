@@ -18,7 +18,7 @@ router = APIRouter()
 
 
 @router.get("/logbooks", response_model=list[LogbookSchema])
-async def get_locations(db: Session = Depends(dependencies.get_db)):
+async def get_logbooks(db: Session = Depends(dependencies.get_db)):
     return crud.find_all_logbooks(db)
 
 

@@ -4,7 +4,7 @@ from sqlalchemy import URL, create_engine
 from sqlalchemy.orm import sessionmaker
 
 database_url = URL.create(
-    environ.get("DATABASE_DRIVER", "postgresql"),
+    drivername=environ.get("DATABASE_DRIVER", "postgresql"),
     username=environ.get("DATABASE_USER_NAME"),
     password=environ.get("DATABASE_USER_PASSWORD"),
     host=environ.get("DATABASE_HOST", "localhost"),
