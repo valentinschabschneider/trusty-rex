@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER_NAME}
+      POSTGRES_PASSWORD: ${DATABASE_USER_PASSWORD}
+    ports:
+      - 5432:5432

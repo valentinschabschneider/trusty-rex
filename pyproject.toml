@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "trusty-rex"
+version = "0.1.0"
+description = "A simple changelog service"
+authors = ["Valentin Schabschneider <valentin.schabschneider@gmail.com>"]
+readme = "README.md"
+packages = [{include = "trusty_rex"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+uvicorn = {extras = ["standard"], version = "^0.23.1"}
+fastapi = {extras = ["all"], version = "^0.100.0"}
+sqlalchemy = "^2.0.19"
+psycopg2 = "^2.9.6"
+deepdiff = "^6.3.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
