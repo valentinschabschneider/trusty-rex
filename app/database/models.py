@@ -1,14 +1,16 @@
+import uuid
+
 from sqlalchemy import (
     ARRAY,
     JSON,
     Column,
     DateTime,
     ForeignKey,
-    Integer,
     String,
     UniqueConstraint,
     func,
 )
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -18,19 +20,19 @@ Base = declarative_base()
 class Logbook(Base):
     __tablename__ = "logbook"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     key = Column(String, unique=True, index=True)
 
-    records = relationship("Record", back_populates="logbook")
+    record_states = relationship("RecordState", back_populates="logbook")
 
 
-class Record(Base):
-    __tablename__ = "record"
+class RecordState(Base):
+    __tablename__ = "record_state"
 
-    id = Column(Integer, primary_key=True, index=True)
-    logbook_id = Column(Integer, ForeignKey("logbook.id"))
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    logbook_id = Column(UUID(as_uuid=True), ForeignKey("logbook.id"))
     key = Column(String, index=True, nullable=False)
-    data = Column(JSON, nullable=True)
+    data = Column(JSON, nullable=False)
     tags = Column(ARRAY(String), nullable=True)
     meta = Column(JSON, nullable=True)
     created = Column(DateTime, default=func.now())
@@ -38,6 +40,8 @@ class Record(Base):
         "last_updated", DateTime, default=func.now(), onupdate=func.now()
     )
 
-    logbook = relationship("Logbook", back_populates="records")
+    logbook = relationship("Logbook", back_populates="record_states")
 
-    __table_args__ = (UniqueConstraint("logbook_id", "key", created, name="uq_record"),)
+    __table_args__ = (
+        UniqueConstraint("logbook_id", "key", created, name="uq_record_state"),
+    )

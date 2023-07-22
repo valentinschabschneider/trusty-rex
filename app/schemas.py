@@ -1,23 +1,28 @@
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
 
 from pydantic import BaseModel, Field, field_serializer
 
-from app.utils import camelize_diff
+from app.utils import camelize_dict_keys
 
 
-class RecordBase(BaseModel):
-    key: str
-    data: Optional[dict] = None
+class RecordStateBase(BaseModel):
+    data: dict
     tags: Optional[list[str]] = None
     meta: Optional[dict] = None
 
 
-class RecordCreate(RecordBase):
+class RecordStateCreate(RecordStateBase):
     pass
 
 
-class Record(RecordBase):
+class RecordStateUpdate(RecordStateBase):
+    pass
+
+
+class RecordState(RecordStateBase):
+    id: UUID
     created: datetime
     last_updated: datetime = Field(serialization_alias="lastUpdated")
 
@@ -25,12 +30,12 @@ class Record(RecordBase):
         from_attributes = True
 
 
-class RecordHistory(Record):
-    diff: dict
+class RecordStateDiff(RecordState):
+    diff_to_previous: dict = Field(serialization_alias="diffToPrevious")
 
-    @field_serializer("diff")
-    def serialize_diff(self, diff: dict):
-        return camelize_diff(diff)
+    @field_serializer("diff_to_previous")
+    def serialize_diff_to_previous(self, diff_to_previous: dict):
+        return camelize_dict_keys(diff_to_previous)
 
 
 class LogbookBase(BaseModel):

@@ -7,10 +7,10 @@ def too_camel(s: str):
     return to_camel(s)
 
 
-def camelize_diff(d):
+def camelize_dict_keys(d):
     if isinstance(d, list):
-        return [camelize_diff(i) if isinstance(i, (dict, list)) else i for i in d]
+        return [camelize_dict_keys(i) if isinstance(i, (dict, list)) else i for i in d]
     return {
-        too_camel(a): camelize_diff(b) if isinstance(b, (dict, list)) else b
+        too_camel(a): camelize_dict_keys(b) if isinstance(b, (dict, list)) else b
         for a, b in d.items()
     }

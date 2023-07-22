@@ -1,10 +1,13 @@
+from uuid import UUID
+
 from sqlalchemy.orm import Session
 
 from app.schemas import LogbookCreate as LogbookCreateSchema
-from app.schemas import RecordCreate as RecordCreateSchema
+from app.schemas import RecordStateCreate as RecordStateCreateSchema
+from app.schemas import RecordStateUpdate as RecordStateUpdateSchema
 
 from .models import Logbook as LogbookModel
-from .models import Record as RecordModel
+from .models import RecordState as RecordStateModel
 
 
 def create_logbook(db: Session, new_logbook: LogbookCreateSchema):
@@ -25,30 +28,69 @@ def find_all_logbooks(db: Session):
     return db.query(LogbookModel).all()
 
 
-def create_record(db: Session, logbook_key: str, new_record: RecordCreateSchema):
+def create_record_state(
+    db: Session,
+    logbook_key: str,
+    record_key: str,
+    new_record_state: RecordStateCreateSchema,
+):
     logbook = find_logbook(db, logbook_key)
 
-    record = RecordModel(
+    record_state = RecordStateModel(
         logbook_id=logbook.id,
-        key=new_record.key,
-        data=new_record.data,
-        tags=new_record.tags,
-        meta=new_record.meta,
+        key=record_key,
+        data=new_record_state.data,
+        tags=new_record_state.tags,
+        meta=new_record_state.meta,
     )
 
-    db.add(record)
+    db.add(record_state)
     db.commit()
-    db.refresh(record)
+    db.refresh(record_state)
 
-    return record
+    return record_state
 
 
-def find_records(db: Session, logbook_key: str, record_key: str = None):
+def update_record_state(
+    db: Session,
+    logbook_key: str,
+    record_key: str,
+    record_state_id: UUID,
+    updated_record_state: RecordStateUpdateSchema,
+):
+    record_state = find_record_state(db, logbook_key, record_key, record_state_id)
+
+    record_state.data = updated_record_state.data
+    record_state.tags = updated_record_state.tags
+    record_state.meta = updated_record_state.meta
+
+    db.commit()
+    db.refresh(record_state)
+
+    return record_state
+
+
+def find_record_state(
+    db: Session, logbook_key: str, record_key: str, record_state_id: UUID
+):
     logbook = find_logbook(db, logbook_key)
 
-    query = db.query(RecordModel).filter(RecordModel.logbook_id == logbook.id)
+    return (
+        db.query(RecordStateModel)
+        .filter(RecordStateModel.logbook_id == logbook.id)
+        .filter(RecordStateModel.key == record_key)
+        .filter(RecordStateModel.id == record_state_id)
+        .first()
+    )
 
-    if record_key is not None:
-        query = query.filter(RecordModel.key == record_key)
 
-    return query.order_by(RecordModel.key, RecordModel.created).all()
+def find_record_states(db: Session, logbook_key: str, record_key: str):
+    logbook = find_logbook(db, logbook_key)
+
+    return (
+        db.query(RecordStateModel)
+        .filter(RecordStateModel.logbook_id == logbook.id)
+        .filter(RecordStateModel.key == record_key)
+        .order_by(RecordStateModel.key, RecordStateModel.created)
+        .all()
+    )

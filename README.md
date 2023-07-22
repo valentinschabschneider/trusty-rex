@@ -1,3 +1,7 @@
+# Trusty Rex
+
+## Development
+
 ```
 poetry install
 
