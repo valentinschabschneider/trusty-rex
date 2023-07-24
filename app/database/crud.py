@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.schemas import LogbookCreate as LogbookCreateSchema
@@ -24,6 +25,15 @@ def find_logbook(db: Session, key: str):
     return db.query(LogbookModel).filter(LogbookModel.key == key).first()
 
 
+def get_logbook(db: Session, key: str):
+    logbook = find_logbook(db, key)
+
+    if not logbook:
+        raise HTTPException(status_code=404, detail="Logbook not found")
+
+    return logbook
+
+
 def find_all_logbooks(db: Session):
     return db.query(LogbookModel).all()
 
@@ -34,7 +44,7 @@ def create_record_state(
     record_key: str,
     new_record_state: RecordStateCreateSchema,
 ):
-    logbook = find_logbook(db, logbook_key)
+    logbook = get_logbook(db, logbook_key)
 
     record_state = RecordStateModel(
         logbook_id=logbook.id,
@@ -42,6 +52,8 @@ def create_record_state(
         data=new_record_state.data,
         tags=new_record_state.tags,
         meta=new_record_state.meta,
+        created=new_record_state.created,
+        last_updated=new_record_state.created,
     )
 
     db.add(record_state)
@@ -58,11 +70,12 @@ def update_record_state(
     record_state_id: UUID,
     updated_record_state: RecordStateUpdateSchema,
 ):
-    record_state = find_record_state(db, logbook_key, record_key, record_state_id)
+    record_state = get_record_state(db, logbook_key, record_key, record_state_id)
 
     record_state.data = updated_record_state.data
     record_state.tags = updated_record_state.tags
     record_state.meta = updated_record_state.meta
+    record_state.last_updated = updated_record_state.last_updated
 
     db.commit()
     db.refresh(record_state)
@@ -70,12 +83,12 @@ def update_record_state(
     return record_state
 
 
-def find_record_state(
+def get_record_state(
     db: Session, logbook_key: str, record_key: str, record_state_id: UUID
 ):
-    logbook = find_logbook(db, logbook_key)
+    logbook = get_logbook(db, logbook_key)
 
-    return (
+    record_state = (
         db.query(RecordStateModel)
         .filter(RecordStateModel.logbook_id == logbook.id)
         .filter(RecordStateModel.key == record_key)
@@ -83,9 +96,14 @@ def find_record_state(
         .first()
     )
 
+    if not record_state:
+        raise HTTPException(status_code=404, detail="Record state not found")
+
+    return record_state
+
 
 def find_record_states(db: Session, logbook_key: str, record_key: str):
-    logbook = find_logbook(db, logbook_key)
+    logbook = get_logbook(db, logbook_key)
 
     return (
         db.query(RecordStateModel)

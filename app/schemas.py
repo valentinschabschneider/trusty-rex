@@ -3,6 +3,7 @@ from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_serializer
+from pydantic.alias_generators import to_camel
 
 from app.utils import camelize_dict_keys
 
@@ -12,26 +13,30 @@ class RecordStateBase(BaseModel):
     tags: Optional[list[str]] = None
     meta: Optional[dict] = None
 
+    class Config:
+        alias_generator = to_camel
+        populate_by_name = True
+
 
 class RecordStateCreate(RecordStateBase):
-    pass
+    created: Optional[datetime] = None
 
 
 class RecordStateUpdate(RecordStateBase):
-    pass
+    last_updated: Optional[datetime] = Field(alias="updated")
 
 
 class RecordState(RecordStateBase):
     id: UUID
     created: datetime
-    last_updated: datetime = Field(serialization_alias="lastUpdated")
+    last_updated: datetime
 
     class Config:
         from_attributes = True
 
 
 class RecordStateDiff(RecordState):
-    diff_to_previous: dict = Field(serialization_alias="diffToPrevious")
+    diff_to_previous: dict
 
     @field_serializer("diff_to_previous")
     def serialize_diff_to_previous(self, diff_to_previous: dict):
@@ -40,6 +45,10 @@ class RecordStateDiff(RecordState):
 
 class LogbookBase(BaseModel):
     key: str
+
+    class Config:
+        alias_generator = to_camel
+        populate_by_name = True
 
 
 class LogbookCreate(LogbookBase):

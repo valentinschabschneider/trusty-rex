@@ -3,6 +3,7 @@ import uuid
 from sqlalchemy import (
     ARRAY,
     JSON,
+    CheckConstraint,
     Column,
     DateTime,
     ForeignKey,
@@ -44,4 +45,7 @@ class RecordState(Base):
 
     __table_args__ = (
         UniqueConstraint("logbook_id", "key", created, name="uq_record_state"),
+        CheckConstraint(
+            created <= last_updated, name="ch_record_state_created_before_updated"
+        ),
     )
