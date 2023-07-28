@@ -64,6 +64,9 @@ jobs:
           DATABASE_HOST: postgres
           DATABASE_USER_PASSWORD: $DATABASE_USER_PASSWORD
 
+      - run: |
+          echo ${{ steps.meta.outputs.version }}
+
       # Uses an external tool, openapitools-generator-action, to generate the client code.
       # The 'openapirc.json' file is the following: { "packageName": "collector", "projectName": "collector" }
       # and it lives inside the master branch of the repository. Command outputs a new folder called
@@ -81,7 +84,9 @@ jobs:
         with:
           node-version: "16.x"
           registry-url: "https://registry.npmjs.org"
-      - run: npm install
+      - run: npm i --package-lock-only
+        working-directory: typescript-fetch-client
+      - run: npm ci
         working-directory: typescript-fetch-client
       - run: npm publish
         working-directory: typescript-fetch-client
