@@ -1,0 +1,60 @@
+name: Docker Image CI
+
+on:
+  push:
+    tags:
+      - "v*"
+  pull_request:
+    branches:
+      - "api-client"
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          # list of Docker images to use as base name for tags
+          images: |
+            valentinschabschneider/trusty-rex
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            type=semver,pattern={{version}}
+
+      # Generate requirments.txt
+      - uses: divideprojects/poetry-export-requirements-action@v1
+
+      # Generates a openapi.yaml file based on the FastAPI project.
+      - name: Generate OpenAPI file
+        uses: column-street/fastapi-openapi-specs-action@v1.0.1
+        with:
+          moduleDir: app
+
+      # Uses an external tool, openapitools-generator-action, to generate the client code.
+      # The 'openapirc.json' file is the following: { "packageName": "collector", "projectName": "collector" }
+      # and it lives inside the master branch of the repository. Command outputs a new folder called
+      # 'python-client' with the relevant client code.
+      - name: Generate Python Client
+        uses: triaxtec/openapitools-generator-action@v1
+        with:
+          generator: typescript-fetch
+          openapi-file: openapi.yaml
+          config-file: api-clients/typescript-fetch_config.json
+          command-args: npmVersion=${{ steps.meta.outputs.version }}
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16.x"
+          registry-url: "https://registry.npmjs.org"
+      - run: npm ci
+        working-directory: typescript-fetch-client
+      - run: npm publish
+        working-directory: typescript-fetch-client
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
