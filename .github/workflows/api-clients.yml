@@ -89,6 +89,7 @@ jobs:
       - run: npm ci
         working-directory: typescript-fetch-client
       - run: npm publish
+        if: github.event_name != 'pull_request'
         working-directory: typescript-fetch-client
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
