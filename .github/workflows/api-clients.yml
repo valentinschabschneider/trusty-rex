@@ -74,7 +74,7 @@ jobs:
           generator: typescript-fetch
           openapi-file: openapi.yaml
           config-file: api-clients/typescript-fetch_config.json
-          command-args: npmVersion=${{ steps.meta.outputs.version }}
+          command-args: --additional-properties=npmVersion=${{ steps.meta.outputs.version }}
 
       - name: Setup node
         uses: actions/setup-node@v3
