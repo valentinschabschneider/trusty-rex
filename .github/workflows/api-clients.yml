@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: API Clients CI
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - "main"
 
 jobs:
-  docker:
+  api-clients:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,6 +28,9 @@ jobs:
 
       # Generate requirments.txt
       - uses: divideprojects/poetry-export-requirements-action@v1
+
+      - run: |
+          cat requirements.txt
 
       # Generates a openapi.yaml file based on the FastAPI project.
       - name: Generate OpenAPI file
