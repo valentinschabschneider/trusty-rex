@@ -25,6 +25,7 @@ jobs:
         env:
           # required
           POSTGRES_PASSWORD: $DATABASE_USER_PASSWORD
+          POSTGRES_DB: rex
         ports:
           # maps tcp port 5432 on service container to the host
           - 5432:5432
