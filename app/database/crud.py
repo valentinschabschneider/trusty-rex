@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import HTTPException
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.schemas import LogbookCreate as LogbookCreateSchema
@@ -36,6 +37,20 @@ def get_logbook(db: Session, key: str):
 
 def find_all_logbooks(db: Session):
     return db.query(LogbookModel).all()
+
+
+def find_all_record_keys(db: Session, logbook_key: str):
+    logbook = find_logbook(db, logbook_key)
+
+    return [
+        {"key": key, "amount_of_states": count}
+        for key, count in (
+            db.query(RecordStateModel.key, func.count(RecordStateModel.id))
+            .filter(RecordStateModel.logbook_id == logbook.id)
+            .group_by(RecordStateModel.key)
+            .all()
+        )
+    ]
 
 
 def create_record_state(

@@ -43,6 +43,15 @@ class RecordStateDiff(RecordState):
         return camelize_dict_keys(diff_to_previous)
 
 
+class RecordStateAmount(BaseModel):
+    key: str
+    amount_of_states: int
+
+    class Config:
+        alias_generator = to_camel
+        populate_by_name = True
+
+
 class LogbookBase(BaseModel):
     key: str
 

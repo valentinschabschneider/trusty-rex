@@ -12,9 +12,10 @@ from app import dependencies
 from app.schemas import Logbook as LogbookSchema
 from app.schemas import LogbookCreate as LogbookCreateSchema
 from app.schemas import RecordState as RecordSchema
+from app.schemas import RecordStateAmount as RecordStateAmountSchema
 from app.schemas import RecordStateCreate as RecordCreateSchema
 from app.schemas import RecordStateDiff as RecordStateDiffSchema
-from app.schemas import RecordStateUpdate
+from app.schemas import RecordStateUpdate as RecordStateUpdateSchema
 from app.utils import generate_diffs
 
 router = APIRouter()
@@ -35,6 +36,17 @@ async def get_logbooks(
     api_key: APIKey = Depends(auth.get_api_key),
 ):
     return crud.find_all_logbooks(db)
+
+
+@router.get(
+    "/logbooks/{logbook_key}/records", response_model=list[RecordStateAmountSchema]
+)
+async def get_records(
+    logbook_key: str,
+    db: Session = Depends(dependencies.get_db),
+    api_key: APIKey = Depends(auth.get_api_key),
+):
+    return crud.find_all_record_keys(db, logbook_key)
 
 
 @router.post(
@@ -73,7 +85,7 @@ async def update_record_state(
     logbook_key: str,
     record_key: str,
     record_state_id: UUID,
-    updated_record_state: RecordStateUpdate,
+    updated_record_state: RecordStateUpdateSchema,
     db: Session = Depends(dependencies.get_db),
     api_key: APIKey = Depends(auth.get_api_key),
 ):
