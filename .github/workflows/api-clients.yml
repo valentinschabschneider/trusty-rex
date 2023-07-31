@@ -16,18 +16,12 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      # label used to access the service container
       postgres:
-        # Docker Hub image
         image: postgres:15
-        # service environment variables
-        # `POSTGRES_HOST` is `postgres`
         env:
-          # required
           POSTGRES_PASSWORD: $DATABASE_USER_PASSWORD
           POSTGRES_DB: rex
         ports:
-          # maps tcp port 5432 on service container to the host
           - 5432:5432
         # set health checks to wait until postgres has started
         options: >-
@@ -56,16 +50,12 @@ jobs:
 
       # Generates a openapi.yaml file based on the FastAPI project.
       - name: Generate OpenAPI file
-        uses: column-street/fastapi-openapi-specs-action@v1.0.1
+        uses: column-street/fastapi-openapi-specs-action@v1.0.2
         with:
           moduleDir: app
         env:
-          INPUT_INSTALLDEPENDENCIES: pip install -r requirements.txt
           DATABASE_HOST: postgres
           DATABASE_USER_PASSWORD: $DATABASE_USER_PASSWORD
-
-      - run: |
-          echo ${{ steps.meta.outputs.version }}
 
       # Uses an external tool, openapitools-generator-action, to generate the client code.
       # The 'openapirc.json' file is the following: { "packageName": "collector", "projectName": "collector" }
