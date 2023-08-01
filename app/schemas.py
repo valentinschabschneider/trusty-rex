@@ -23,7 +23,10 @@ class RecordStateCreate(RecordStateBase):
 
 
 class RecordStateUpdate(RecordStateBase):
-    last_updated: Optional[datetime] = Field(alias="updated")
+    last_updated: Optional[datetime] = Field(
+        default=None,
+        alias="updated",
+    )
 
 
 class RecordState(RecordStateBase):

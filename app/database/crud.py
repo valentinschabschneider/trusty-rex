@@ -90,7 +90,9 @@ def update_record_state(
     record_state.data = updated_record_state.data
     record_state.tags = updated_record_state.tags
     record_state.meta = updated_record_state.meta
-    record_state.last_updated = updated_record_state.last_updated
+
+    if updated_record_state.last_updated:
+        record_state.last_updated = updated_record_state.last_updated
 
     db.commit()
     db.refresh(record_state)
