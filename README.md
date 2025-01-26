@@ -8,8 +8,14 @@ Docker image can be found on [Docker Hub](https://hub.docker.com/r/valentinschab
 
 ## Development
 
+```bash
+uv run --env-file .env fastapi run --reload app/main.py
 ```
-poetry install
 
-poetry run uvicorn app.main:app --reload
+### Migrations
+
+```bash
+uv run --env-file .env alembic revision --autogenerate -m "Init"
+
+uv run --env-file .env alembic upgrade head
 ```

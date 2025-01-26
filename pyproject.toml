@@ -1,20 +1,14 @@
-[tool.poetry]
+[project]
 name = "trusty-rex"
-version = "0.3.0"
-description = "A simple changelog service"
-authors = ["Valentin Schabschneider <valentin.schabschneider@gmail.com>"]
+version = "0.1.0"
+description = "Add your description here"
 readme = "README.md"
-packages = [{include = "trusty_rex"}]
-
-[tool.poetry.dependencies]
-python = "^3.11"
-uvicorn = {extras = ["standard"], version = "^0.23.1"}
-fastapi = {extras = ["all"], version = "^0.100.0"}
-sqlalchemy = "^2.0.19"
-psycopg2 = "^2.9.6"
-deepdiff = "^6.3.1"
-
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires-python = ">=3.13"
+dependencies = [
+    "alembic>=1.14.1",
+    "deepdiff>=8.1.1",
+    "fastapi[standard]>=0.115.7",
+    "pydantic-settings>=2.7.1",
+    "sqlmodel>=0.0.22",
+    "tenacity>=9.0.0",
+]
