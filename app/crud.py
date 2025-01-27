@@ -171,6 +171,25 @@ def get_record_state(
     return state
 
 
+def get_latest_record_state(db: Session, logbook_key: str, record_key: str):
+    logbook = get_logbook(db, logbook_key)
+
+    statement = (
+        select(RecordState)
+        .where(RecordState.logbook_id == logbook.id)
+        .where(RecordState.key == record_key)
+        .order_by(RecordState.created_at.desc())
+    )
+    state = db.exec(statement).first()
+
+    if not state:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Record state not found"
+        )
+
+    return state
+
+
 def find_record_states(db: Session, logbook_key: str, record_key: str):
     logbook = get_logbook(db, logbook_key)
 

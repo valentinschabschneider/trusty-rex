@@ -8,7 +8,6 @@ from typing_extensions import Self
 
 
 def parse_array(v: Any) -> list[str] | str:
-    print("wot", v)
     if isinstance(v, str) and not v.startswith("["):
         return [i.strip() for i in v.split(",")]
     elif isinstance(v, list | str):

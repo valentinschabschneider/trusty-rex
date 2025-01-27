@@ -1,28 +1,18 @@
+from typing import Any
+
 from deepdiff import DeepDiff, DeepHash
 
 from app.api.routes.schemas import RecordStateDiff
 
-# def too_camel(s: str):
-#     if "[" in s:
-#         return s
-#     return to_camel(s)
 
-
-# def camelize_dict_keys(d):
-#     if isinstance(d, list):
-#         return [camelize_dict_keys(i) if isinstance(i, (dict, list)) else i for i in d]
-#     return {
-#         too_camel(a): camelize_dict_keys(b) if isinstance(b, (dict, list)) else b
-#         for a, b in d.items()
-#     }
+def generate_diff_any(base: Any, other: Any):
+    return DeepDiff(base, other)
 
 
 def generate_diff(
     base_record_state: RecordStateDiff, other_record_state: RecordStateDiff
 ):
-    print(DeepDiff(base_record_state.data, other_record_state.data).to_dict())
-
-    return DeepDiff(base_record_state.data, other_record_state.data)
+    return generate_diff_any(base_record_state.data, other_record_state.data)
 
 
 def generate_diffs(record_states: list[RecordStateDiff]) -> list[RecordStateDiff]:

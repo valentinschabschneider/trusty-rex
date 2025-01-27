@@ -32,3 +32,7 @@ class RecordStateDiff(BaseModel):
             return None
 
         return json.loads(diff.to_json())
+
+
+class PreviewDiff(BaseModel):
+    data: dict | list
