@@ -8,6 +8,7 @@ dependencies = [
     "alembic>=1.14.1",
     "deepdiff>=8.1.1",
     "fastapi[standard]>=0.115.7",
+    "psycopg>=3.2.4",
     "pydantic-settings>=2.7.1",
     "sqlmodel>=0.0.22",
     "tenacity>=9.0.0",
