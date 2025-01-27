@@ -22,7 +22,7 @@ ENV UV_LINK_MODE=copy
 
 # Install dependencies
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
-RUN --mount=type=cache,id=uv/7c05394f-c00c-4c4a-aab0-e5d2393cfd0e-/root/.cache/uv,target=/root/.cache/uv \
+RUN --mount=type=cache,id=s/7c05394f-c00c-4c4a-aab0-e5d2393cfd0e-/root/.cache/uv,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-project
@@ -37,7 +37,7 @@ COPY ./app /app/app
 
 # Sync the project
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
-RUN --mount=type=cache,id=uv/7c05394f-c00c-4c4a-aab0-e5d2393cfd0e-/root/.cache/uv,target=/root/.cache/uv \
+RUN --mount=type=cache,id=s/7c05394f-c00c-4c4a-aab0-e5d2393cfd0e-/root/.cache/uv,target=/root/.cache/uv \
     uv sync
 
 CMD ["fastapi", "run", "--workers", "4", "app/main.py"]
