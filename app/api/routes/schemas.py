@@ -1,9 +1,15 @@
-import json
 import uuid
 from datetime import datetime
 
-from deepdiff import DeepDiff
-from pydantic import BaseModel, field_serializer
+from pydantic import BaseModel
+
+
+class DiffDict(BaseModel):
+    values_changed: list = []
+    iterable_item_added: list = []
+    iterable_item_removed: list = []
+    dictionary_item_added: list = []
+    dictionary_item_removed: list = []
 
 
 class RecordStateAmount(BaseModel):
@@ -17,7 +23,7 @@ class RecordStateDiff(BaseModel):
     data: dict | list
     meta: dict
     created_at: datetime
-    diff_to_previous: DeepDiff | None
+    diff_to_previous: DiffDict | None
     hash: str
 
     class Config:
@@ -26,12 +32,12 @@ class RecordStateDiff(BaseModel):
         #     DeepDiff: lambda v: v.to_json(),
         # }
 
-    @field_serializer("diff_to_previous")
-    def serialize_diff(self, diff: DeepDiff):
-        if diff is None:
-            return None
+    # @field_serializer("diff_to_previous")
+    # def serialize_diff(self, diff: dict):
+    #     if diff is None:
+    #         return None
 
-        return json.loads(diff.to_json())
+    #     return json.loads(diff.to_json())
 
 
 class PreviewDiff(BaseModel):

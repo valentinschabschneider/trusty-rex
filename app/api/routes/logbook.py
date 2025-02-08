@@ -1,13 +1,13 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Response, status
+from fastapi import APIRouter, HTTPException, Response, status
 
 from app import crud
 from app.api.deps import AuthDep, DBSessionDep
 from app.models import LogbookBase, RecordState, RecordStateBase, RecordStateCreate
-from app.utils import generate_diff, generate_diff_any, generate_diffs
+from app.utils import DiffNotation, generate_diff, generate_diff_any, generate_diffs
 
-from .schemas import PreviewDiff, RecordStateAmount, RecordStateDiff
+from .schemas import DiffDict, PreviewDiff, RecordStateAmount, RecordStateDiff
 
 router = APIRouter(tags=["logbook"])
 
@@ -73,7 +73,21 @@ def create_record_state(
     record_key: str,
     new_record_state: RecordStateCreate,
     db: DBSessionDep,
+    prevent_no_changes: bool = False,
 ):
+    latest_state = crud.get_latest_record_state(db, logbook_key, record_key)
+
+    if prevent_no_changes:
+        diff = generate_diff_any(
+            crud.get_record_state(db, logbook_key, record_key, latest_state.id),
+            latest_state,
+        )
+
+        if len(diff.affected_paths) == 0:
+            raise HTTPException(
+                status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="No changes detected"
+            )
+
     return crud.create_record_state(db, logbook_key, record_key, new_record_state)
 
 
@@ -86,8 +100,11 @@ def get_record_states(
     logbook_key: str,
     record_key: str,
     db: DBSessionDep,
+    notation: DiffNotation = DiffNotation.python,
 ):
-    return generate_diffs(crud.find_record_states(db, logbook_key, record_key))
+    return generate_diffs(
+        crud.find_record_states(db, logbook_key, record_key), notation
+    )
 
 
 @router.put(
@@ -124,7 +141,7 @@ def delete_record_state(
 
 @router.get(
     "/logbook/{logbook_key}/record/{record_key}/state/{record_state_id}/compare",
-    response_model=dict,
+    response_model=DiffDict,
     dependencies=[AuthDep],
 )
 def get_record_state_compare(
@@ -133,20 +150,20 @@ def get_record_state_compare(
     record_state_id: UUID,
     other_record_state_id: UUID,
     db: DBSessionDep,
+    notation: DiffNotation = DiffNotation.python,
 ):
     diff = generate_diff(
         crud.get_record_state(db, logbook_key, record_key, record_state_id),
         crud.get_record_state(db, logbook_key, record_key, other_record_state_id),
+        notation,
     )
 
-    return Response(
-        diff.to_json(), status_code=status.HTTP_200_OK, media_type="application/json"
-    )
+    return diff
 
 
 @router.post(
     "/logbook/{logbook_key}/record/{record_key}/state/preview-diff",
-    response_model=dict,
+    response_model=DiffDict,
     dependencies=[AuthDep],
 )
 def preview_diff(
@@ -154,12 +171,12 @@ def preview_diff(
     record_key: str,
     preview_diff_data: PreviewDiff,
     db: DBSessionDep,
+    notation: DiffNotation = DiffNotation.python,
 ):
     diff = generate_diff_any(
         crud.get_latest_record_state(db, logbook_key, record_key).data,
         preview_diff_data.data,
+        notation,
     )
 
-    return Response(
-        diff.to_json(), status_code=status.HTTP_200_OK, media_type="application/json"
-    )
+    return diff
