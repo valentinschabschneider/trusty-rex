@@ -75,18 +75,20 @@ def create_record_state(
     db: DBSessionDep,
     prevent_no_changes: bool = False,
 ):
-    latest_state = crud.get_latest_record_state(db, logbook_key, record_key)
-
     if prevent_no_changes:
-        diff = generate_diff_any(
-            crud.get_record_state(db, logbook_key, record_key, latest_state.id),
-            latest_state,
-        )
+        latest_state = crud.get_latest_record_state(db, logbook_key, record_key)
 
-        if len(diff.affected_paths) == 0:
-            raise HTTPException(
-                status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="No changes detected"
+        if latest_state is not None:
+            diff = generate_diff_any(
+                latest_state.data,
+                new_record_state.data,
             )
+
+            if len(diff.affected_paths) == 0:
+                raise HTTPException(
+                    status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                    detail="No changes detected",
+                )
 
     return crud.create_record_state(db, logbook_key, record_key, new_record_state)
 
@@ -174,7 +176,7 @@ def preview_diff(
     notation: DiffNotation = DiffNotation.python,
 ):
     diff = generate_diff_any(
-        crud.get_latest_record_state(db, logbook_key, record_key).data,
+        crud.get_latest_record_state_or_raise(db, logbook_key, record_key).data,
         preview_diff_data.data,
         notation,
     )

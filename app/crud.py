@@ -182,6 +182,12 @@ def get_latest_record_state(db: Session, logbook_key: str, record_key: str):
     )
     state = db.exec(statement).first()
 
+    return state
+
+
+def get_latest_record_state_or_raise(db: Session, logbook_key: str, record_key: str):
+    state = get_latest_record_state(db, logbook_key, record_key)
+
     if not state:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Record state not found"
