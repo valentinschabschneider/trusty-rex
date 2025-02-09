@@ -1,0 +1,15 @@
+## {{npmName}}
+
+```typescript
+import {
+	Configuration,
+	LogbookApi
+} from '@valentin.schabschneider/trusty-rex-typescript-fetch-client';
+
+const apiConfig = new Configuration({
+	basePath: 'http://localhost:8000',
+	apiKey: 'changethis'
+});
+
+const apiClient = new LogbookApi(apiConfig);
+```

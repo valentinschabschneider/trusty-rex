@@ -54,7 +54,8 @@ jobs:
         with:
           generator: typescript-fetch
           openapi-file: openapi.yaml
-          config-file: api-clients/typescript-fetch_config.json
+          config-file: api-clients/typescript-fetch/config.json
+          template-dir: api-clients/typescript-fetch/templates
           command-args: --additional-properties=npmVersion=${{ steps.meta.outputs.version }}
 
       - name: Archive Generated Typescript Client
