@@ -1,22 +1,39 @@
-FROM python:3.11 as requirements
+FROM python:3.13
 
-WORKDIR /tmp
+ENV PYTHONUNBUFFERED=1
 
-RUN pip install poetry
+WORKDIR /app/
 
-COPY ./pyproject.toml ./poetry.lock* /tmp/
+# Install uv
+# Ref: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
+COPY --from=ghcr.io/astral-sh/uv:0.5.18 /uv /uvx /bin/
 
-RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
+# Place executables in the environment at the front of the path
+# Ref: https://docs.astral.sh/uv/guides/integration/docker/#using-the-environment
+ENV PATH="/app/.venv/bin:$PATH"
 
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.11-slim
+# Compile bytecode
+# Ref: https://docs.astral.sh/uv/guides/integration/docker/#compiling-bytecode
+ENV UV_COMPILE_BYTECODE=1
 
-COPY --from=requirements /tmp/requirements.txt /app/requirements.txt
+# uv Cache
+# Ref: https://docs.astral.sh/uv/guides/integration/docker/#caching
+ENV UV_LINK_MODE=copy
 
-# required for psycopg2
-RUN apt-get update && apt-get -y install libpq-dev gcc
+ENV PYTHONPATH=/app
 
-RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+COPY ./pyproject.toml ./uv.lock ./alembic.ini /app/
 
-RUN apt-get -y remove libpq-dev gcc 
+# Install dependencies
+# Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
+RUN uv sync --frozen --no-install-project
 
 COPY ./app /app/app
+
+# Sync the project
+# Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
+RUN uv sync
+
+ENV ENVIRONMENT=production
+
+CMD ["fastapi", "run", "--workers", "4", "app/main.py"]

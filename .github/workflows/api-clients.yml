@@ -8,31 +8,20 @@ on:
     branches:
       - "main"
 
-env:
-  DATABASE_USER_PASSWORD: upsi
-
 jobs:
   api-clients:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: $DATABASE_USER_PASSWORD
-          POSTGRES_DB: rex
-        ports:
-          - 5432:5432
-        # set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
 
       - name: Docker meta
         id: meta
@@ -46,7 +35,8 @@ jobs:
             type=semver,pattern={{version}}
 
       # Generate requirments.txt
-      - uses: divideprojects/poetry-export-requirements-action@v1
+      - run: uv sync --no-dev
+      - run: uv pip freeze > requirements.txt
 
       # Generates a openapi.yaml file based on the FastAPI project.
       - name: Generate OpenAPI file
@@ -54,20 +44,24 @@ jobs:
         with:
           moduleDir: app
         env:
-          DATABASE_HOST: postgres
-          DATABASE_USER_PASSWORD: $DATABASE_USER_PASSWORD
+          SQLITE_PATH: /db.sqlite3
 
       # Uses an external tool, openapitools-generator-action, to generate the client code.
       # The 'openapirc.json' file is the following: { "packageName": "collector", "projectName": "collector" }
       # and it lives inside the master branch of the repository. Command outputs a new folder called
-      # 'python-client' with the relevant client code.
-      - name: Generate Python Client
+      - name: Generate Typescript Client
         uses: triaxtec/openapitools-generator-action@v1
         with:
           generator: typescript-fetch
           openapi-file: openapi.yaml
           config-file: api-clients/typescript-fetch_config.json
           command-args: --additional-properties=npmVersion=${{ steps.meta.outputs.version }}
+
+      - name: Archive Generated Typescript Client
+        uses: actions/upload-artifact@v4
+        with:
+          name: typescript-client
+          path: typescript-fetch-client
 
       - name: Setup node
         uses: actions/setup-node@v3

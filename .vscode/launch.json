@@ -1,0 +1,16 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "FastAPI: Run with reload",
+			"type": "debugpy",
+			"request": "launch",
+			"module": "fastapi",
+			"args": ["run", "--reload", "app/main.py"],
+			"jinja": true,
+			"env": {
+				"PYTHONPATH": "${workspaceFolder}"
+			}
+		}
+	]
+}
