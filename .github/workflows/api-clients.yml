@@ -13,8 +13,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
 
       - name: Docker meta
         id: meta
@@ -28,7 +35,8 @@ jobs:
             type=semver,pattern={{version}}
 
       # Generate requirments.txt
-      - uses: divideprojects/poetry-export-requirements-action@v1
+      - run: uv sync --no-dev
+      - run: uv pip freeze > requirements.txt
 
       # Generates a openapi.yaml file based on the FastAPI project.
       - name: Generate OpenAPI file
