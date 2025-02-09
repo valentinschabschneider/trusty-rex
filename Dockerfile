@@ -34,4 +34,6 @@ COPY ./app /app/app
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
 RUN uv sync
 
+ENV ENVIRONMENT=production
+
 CMD ["fastapi", "run", "--workers", "4", "app/main.py"]

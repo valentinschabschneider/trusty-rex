@@ -23,9 +23,9 @@ class Settings(BaseSettings):
         extra="ignore",
     )
     API_V1_STR: str = "/v1"
-    API_KEY: str
+    API_KEY: str | None = None
     # 60 minutes * 24 hours * 8 days = 8 days
-    ENVIRONMENT: Literal["local", "staging", "production"] = "local"
+    ENVIRONMENT: Literal["dev", "production"] = "dev"
 
     POSTGRES_SERVER: str | None = None
     POSTGRES_PORT: int = 5432
@@ -75,7 +75,7 @@ class Settings(BaseSettings):
                 f'The value of {var_name} is "changethis", '
                 "for security, please change it, at least for deployments."
             )
-            if self.ENVIRONMENT == "local":
+            if self.ENVIRONMENT == "dev":
                 warnings.warn(message, stacklevel=1)
             else:
                 raise ValueError(message)
@@ -84,6 +84,17 @@ class Settings(BaseSettings):
     def _enforce_non_default_secrets(self) -> Self:
         self._check_default_secret("API_KEY", self.API_KEY)
         self._check_default_secret("POSTGRES_PASSWORD", self.POSTGRES_PASSWORD)
+
+        return self
+
+    @model_validator(mode="after")
+    def _auth_check(self) -> Self:
+        if self.API_KEY is None:
+            message = "API_KEY is not set, API will be open to the public."
+            if self.ENVIRONMENT == "dev":
+                warnings.warn(message, stacklevel=1)
+            else:
+                raise ValueError(message)
 
         return self
 

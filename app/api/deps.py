@@ -22,7 +22,7 @@ DBSessionDep = Annotated[Session, Depends(get_db)]
 
 
 def check_api_key(x_api_key: str = Header()):
-    if x_api_key != settings.API_KEY:
+    if settings.API_KEY is not None and x_api_key != settings.API_KEY:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Invalid api key"
         )
