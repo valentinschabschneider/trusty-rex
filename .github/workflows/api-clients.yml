@@ -49,7 +49,6 @@ jobs:
       # Uses an external tool, openapitools-generator-action, to generate the client code.
       # The 'openapirc.json' file is the following: { "packageName": "collector", "projectName": "collector" }
       # and it lives inside the master branch of the repository. Command outputs a new folder called
-      # 'python-client' with the relevant client code.
       - name: Generate Typescript Client
         uses: triaxtec/openapitools-generator-action@v1
         with:
@@ -57,6 +56,12 @@ jobs:
           openapi-file: openapi.yaml
           config-file: api-clients/typescript-fetch_config.json
           command-args: --additional-properties=npmVersion=${{ steps.meta.outputs.version }}
+
+      - name: Archive Generated Typescript Client
+        uses: actions/upload-artifact@v4
+        with:
+          name: typescript-client
+          path: typescript-fetch-client
 
       - name: Setup node
         uses: actions/setup-node@v3
