@@ -109,6 +109,23 @@ def get_record_states(
     )
 
 
+@router.get(
+    "/logbook/{logbook_key}/record/{record_key}/state/{record_state_id}",
+    response_model=RecordState,
+    dependencies=[AuthDep],
+)
+def get_record_state(
+    logbook_key: str,
+    record_key: str,
+    record_state_id: UUID,
+    updated_record_state: RecordStateBase,
+    db: DBSessionDep,
+):
+    return crud.get_record_state(
+        db, logbook_key, record_key, record_state_id
+    )
+
+
 @router.put(
     "/logbook/{logbook_key}/record/{record_key}/state/{record_state_id}",
     response_model=RecordState,
