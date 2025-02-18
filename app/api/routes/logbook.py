@@ -118,7 +118,6 @@ def get_record_state(
     logbook_key: str,
     record_key: str,
     record_state_id: UUID,
-    updated_record_state: RecordStateBase,
     db: DBSessionDep,
 ):
     return crud.get_record_state(
