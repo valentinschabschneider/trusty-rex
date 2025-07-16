@@ -35,6 +35,9 @@ class Settings(BaseSettings):
 
     SQLITE_PATH: str | None = None
 
+    DATABASE_POOL_SIZE: int = 20
+    DATABASE_POOL_MAX_OVERFLOW: int = 10
+
     DEFAULT_LOGBOOKS: Annotated[list[str] | str, BeforeValidator(parse_array)] = []
 
     @computed_field  # type: ignore[prop-decorator]
@@ -60,14 +63,34 @@ class Settings(BaseSettings):
 
     @computed_field  # type: ignore[prop-decorator]
     @property
-    def SQLALCHEMY_DATABASE_URI(self) -> str:
+    def SQLALCHEMY_DATABASE_URI(self) -> str | None:
         if self.POSTGRES_DATABASE_URI and self.SQLITE_DATABASE_URI:
             raise ValueError("Only one database can be set at a time")
+        
+        if self.POSTGRES_DATABASE_URI:
+            return str(self.POSTGRES_DATABASE_URI)
+        
+        if self.SQLITE_DATABASE_URI:
+            return self.SQLITE_DATABASE_URI
 
-        if not self.POSTGRES_DATABASE_URI and not self.SQLITE_DATABASE_URI:
-            raise ValueError("No database set")
+        raise ValueError("No database set")
 
-        return self.POSTGRES_DATABASE_URI or self.SQLITE_DATABASE_URI
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def SQLALCHEMY_DATABASE_ARGS(self) -> dict:
+        if self.POSTGRES_DATABASE_URI and self.SQLITE_DATABASE_URI:
+            raise ValueError("Only one database can be set at a time")
+        
+        if self.POSTGRES_DATABASE_URI:
+            return {
+                "pool_size": self.DATABASE_POOL_SIZE,
+                "max_overflow": self.DATABASE_POOL_MAX_OVERFLOW
+            }
+        
+        if self.SQLITE_DATABASE_URI:
+            return {}
+
+        raise ValueError("No database set")
 
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":
