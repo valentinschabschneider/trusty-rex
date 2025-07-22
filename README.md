@@ -1,5 +1,5 @@
 <p align="center">
-	<img src="docs/logo.svg" alt="elliot logo" height="300px" style="margin-left: 4%;" />
+	<img src="docs/logo.png" alt="elliot logo" height="300px" style="margin-left: 4%;" />
 </p>
 
 # Trusty Rex
