@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from fastapi import HTTPException, status
-from sqlmodel import Session, func, select
+from sqlmodel import Session, func, select, desc
 
 from app.models import LogbookBase, RecordStateCreate
 
@@ -151,16 +151,21 @@ def delete_record_state(
 
 
 def get_record_state(
-    db: Session, logbook_key: str, record_key: str, record_state_id: UUID
+    db: Session, logbook_key: str, record_key: str, record_state_id: UUID | str
 ):
     logbook = get_logbook(db, logbook_key)
 
-    statement = (
-        select(RecordState)
-        .where(RecordState.logbook_id == logbook.id)
-        .where(RecordState.key == record_key)
-        .where(RecordState.id == record_state_id)
-    )
+    # check if record_state_id is 'latest'
+    if record_state_id == 'latest':
+        return get_latest_record_state(db, logbook_key, record_key)
+    else:
+        statement = (
+            select(RecordState)
+            .where(RecordState.logbook_id == logbook.id)
+            .where(RecordState.key == record_key)
+            .where(RecordState.id == record_state_id)
+        )
+
     state = db.exec(statement).first()
 
     if not state:

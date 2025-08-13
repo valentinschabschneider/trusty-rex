@@ -117,7 +117,7 @@ def get_record_states(
 def get_record_state(
     logbook_key: str,
     record_key: str,
-    record_state_id: UUID,
+    record_state_id: UUID | str,
     db: DBSessionDep,
 ):
     return crud.get_record_state(
@@ -165,8 +165,8 @@ def delete_record_state(
 def get_record_state_compare(
     logbook_key: str,
     record_key: str,
-    record_state_id: UUID,
-    other_record_state_id: UUID,
+    record_state_id: UUID | str,
+    other_record_state_id: UUID | str,
     db: DBSessionDep,
     notation: DiffNotation = DiffNotation.python,
 ):
