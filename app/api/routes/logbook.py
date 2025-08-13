@@ -1,4 +1,5 @@
 from uuid import UUID
+from typing import Literal
 
 from fastapi import APIRouter, HTTPException, Response, status
 
@@ -117,7 +118,7 @@ def get_record_states(
 def get_record_state(
     logbook_key: str,
     record_key: str,
-    record_state_id: UUID,
+    record_state_id: UUID | Literal["latest"],
     db: DBSessionDep,
 ):
     return crud.get_record_state(
@@ -165,8 +166,8 @@ def delete_record_state(
 def get_record_state_compare(
     logbook_key: str,
     record_key: str,
-    record_state_id: UUID,
-    other_record_state_id: UUID,
+    record_state_id: UUID | Literal["latest"],
+    other_record_state_id: UUID | Literal["latest"],
     db: DBSessionDep,
     notation: DiffNotation = DiffNotation.python,
 ):

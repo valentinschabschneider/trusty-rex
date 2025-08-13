@@ -1,5 +1,6 @@
 from datetime import datetime
 from uuid import UUID
+from typing import Literal
 
 from fastapi import HTTPException, status
 from sqlmodel import Session, func, select
@@ -151,9 +152,17 @@ def delete_record_state(
 
 
 def get_record_state(
-    db: Session, logbook_key: str, record_key: str, record_state_id: UUID
+    db: Session, logbook_key: str, record_key: str, record_state_id: UUID | Literal["latest"]
 ):
     logbook = get_logbook(db, logbook_key)
+
+    if not isinstance(record_state_id, UUID):
+        if record_state_id == "latest":
+            return get_latest_record_state(db, logbook_key, record_key)
+        else:
+            raise HTTPException(
+                status_code=status. HTTP_406_NOT_ACCEPTABLE, detail="Record state not found"
+            )
 
     statement = (
         select(RecordState)
@@ -161,6 +170,7 @@ def get_record_state(
         .where(RecordState.key == record_key)
         .where(RecordState.id == record_state_id)
     )
+
     state = db.exec(statement).first()
 
     if not state:
