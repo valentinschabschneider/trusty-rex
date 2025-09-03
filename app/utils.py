@@ -95,8 +95,6 @@ def deep_diff_to_dict(diff: DeepDiff, notation: DiffNotation = DiffNotation.pyth
 def convert_diff_path_to_dot_notation(path):
     # Replace ['key'] with .key
     path = re.sub(r"\['([^']+)'\]", r".\1", path)
-    # Replace [index] with .index (without brackets)
-    path = re.sub(r"\[(\d+)\]", r".\1", path)
     # Ensure the path does not start with a dot
     if path.startswith("."):
         path = path[1:]
