@@ -67,6 +67,21 @@ def deep_diff_to_dict(diff: DeepDiff, notation: DiffNotation = DiffNotation.pyth
     if "iterable_item_added" in diff_dict:
         diff_dict["iterable_item_added"] = list(diff_dict["iterable_item_added"].keys())
 
+    if "iterable_item_removed" in diff_dict:
+        diff_dict["iterable_item_removed"] = list(
+            diff_dict["iterable_item_removed"].keys()
+        )
+
+    if "dictionary_item_added" in diff_dict:
+        diff_dict["dictionary_item_added"] = list(
+            diff_dict["dictionary_item_added"].keys()
+        )
+
+    if "dictionary_item_removed" in diff_dict:
+        diff_dict["dictionary_item_removed"] = list(
+            diff_dict["dictionary_item_removed"].keys()
+        )
+
     if notation == DiffNotation.dot:
         if "values_changed" in diff_dict:
             diff_dict["values_changed"] = convert_list_keys(diff_dict["values_changed"])
