@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlmodel import JSON, Field, SQLModel, UniqueConstraint
+from sqlmodel import Column, DateTime, JSON, Field, SQLModel, UniqueConstraint
 
 
 class LogbookBase(SQLModel):
@@ -30,6 +30,10 @@ class RecordState(RecordStateBase, table=True):
     key: str = Field(max_length=255)
     logbook_id: uuid.UUID = Field(foreign_key="logbook.id")
     created_at: datetime = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False
+        ),
         default_factory=datetime.now,
     )
 

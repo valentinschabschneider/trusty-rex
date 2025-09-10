@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 from typing import Literal
 
@@ -109,7 +109,7 @@ def create_record_state(
         update={
             "logbook_id": logbook.id,
             "key": record_key,
-            "created_at": datetime.now(),
+            "created_at": datetime.now(tz=timezone.utc),
         },
     )
 

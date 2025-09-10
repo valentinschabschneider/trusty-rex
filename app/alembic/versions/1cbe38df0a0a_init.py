@@ -31,7 +31,7 @@ def upgrade():
     sa.Column('id', sa.Uuid(), nullable=False),
     sa.Column('key', sqlmodel.sql.sqltypes.AutoString(length=255), nullable=False),
     sa.Column('logbook_id', sa.Uuid(), nullable=False),
-    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.ForeignKeyConstraint(['logbook_id'], ['logbook.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('logbook_id', 'key', 'created_at', name='uq_record_state')
