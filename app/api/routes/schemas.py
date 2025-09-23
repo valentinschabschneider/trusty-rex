@@ -10,6 +10,7 @@ class DiffDict(BaseModel):
     iterable_item_removed: list = []
     dictionary_item_added: list = []
     dictionary_item_removed: list = []
+    type_changes: list = []
 
 
 class RecordStateAmount(BaseModel):

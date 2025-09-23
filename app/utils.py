@@ -93,14 +93,6 @@ def deep_diff_to_dict(diff: DeepDiff, notation: DiffNotation = DiffNotation.pyth
             diff_dict["dictionary_item_removed"] = convert_list_keys(
                 diff_dict["dictionary_item_removed"]
             )
-        if "set_item_added" in diff_dict:
-            diff_dict["set_item_added"] = convert_list_keys(
-                diff_dict["set_item_added"]
-            )
-        if "set_item_removed" in diff_dict:
-            diff_dict["set_item_removed"] = convert_list_keys(
-                diff_dict["set_item_removed"]
-            )
 
     return diff_dict
 
