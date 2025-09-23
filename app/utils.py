@@ -64,27 +64,19 @@ def deep_diff_to_dict(diff: DeepDiff, notation: DiffNotation = DiffNotation.pyth
     if "values_changed" in diff_dict:
         diff_dict["values_changed"] = list(diff_dict["values_changed"].keys())
 
-    if "iterable_item_added" in diff_dict:
-        diff_dict["iterable_item_added"] = list(diff_dict["iterable_item_added"].keys())
+    if "type_changes" in diff_dict:
+        diff_dict["type_changes"] = list(diff_dict["type_changes"].keys())
 
-    if "iterable_item_removed" in diff_dict:
-        diff_dict["iterable_item_removed"] = list(
-            diff_dict["iterable_item_removed"].keys()
-        )
-
-    if "dictionary_item_added" in diff_dict:
-        diff_dict["dictionary_item_added"] = list(
-            diff_dict["dictionary_item_added"].keys()
-        )
-
-    if "dictionary_item_removed" in diff_dict:
-        diff_dict["dictionary_item_removed"] = list(
-            diff_dict["dictionary_item_removed"].keys()
-        )
+    # Note: iterable_item_added, iterable_item_removed, dictionary_item_added, 
+    # dictionary_item_removed, set_item_added, and set_item_removed are already 
+    # lists in the JSON output, not dicts. So we don't need to call .keys() on them 
+    # like we do for values_changed and type_changes
 
     if notation == DiffNotation.dot:
         if "values_changed" in diff_dict:
             diff_dict["values_changed"] = convert_list_keys(diff_dict["values_changed"])
+        if "type_changes" in diff_dict:
+            diff_dict["type_changes"] = convert_list_keys(diff_dict["type_changes"])
         if "iterable_item_added" in diff_dict:
             diff_dict["iterable_item_added"] = convert_list_keys(
                 diff_dict["iterable_item_added"]
@@ -100,6 +92,14 @@ def deep_diff_to_dict(diff: DeepDiff, notation: DiffNotation = DiffNotation.pyth
         if "dictionary_item_removed" in diff_dict:
             diff_dict["dictionary_item_removed"] = convert_list_keys(
                 diff_dict["dictionary_item_removed"]
+            )
+        if "set_item_added" in diff_dict:
+            diff_dict["set_item_added"] = convert_list_keys(
+                diff_dict["set_item_added"]
+            )
+        if "set_item_removed" in diff_dict:
+            diff_dict["set_item_removed"] = convert_list_keys(
+                diff_dict["set_item_removed"]
             )
 
     return diff_dict
