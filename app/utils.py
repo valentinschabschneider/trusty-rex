@@ -15,7 +15,11 @@ class DiffNotation(str, Enum):
 
 
 def generate_diff_any(base: Any, other: Any):
-    return DeepDiff(base, other)
+    return DeepDiff(
+        base,
+        other,
+        threshold_to_diff_deeper=0,
+    )
 
 
 def generate_diff(
@@ -67,9 +71,9 @@ def deep_diff_to_dict(diff: DeepDiff, notation: DiffNotation = DiffNotation.pyth
     if "type_changes" in diff_dict:
         diff_dict["type_changes"] = list(diff_dict["type_changes"].keys())
 
-    # Note: iterable_item_added, iterable_item_removed, dictionary_item_added, 
-    # dictionary_item_removed, set_item_added, and set_item_removed are already 
-    # lists in the JSON output, not dicts. So we don't need to call .keys() on them 
+    # Note: iterable_item_added, iterable_item_removed, dictionary_item_added,
+    # dictionary_item_removed, set_item_added, and set_item_removed are already
+    # lists in the JSON output, not dicts. So we don't need to call .keys() on them
     # like we do for values_changed and type_changes
 
     if notation == DiffNotation.dot:
